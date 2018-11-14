@@ -1,0 +1,60 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: minecraft-server
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: minecraft-server
+  template:
+    metadata:
+      labels:
+        app: minecraft-server
+    spec:
+      containers:
+      - name: minecraft-server
+        image: openhack/minecraft-server:2.0
+        ports:
+        - containerPort: 25565
+        - containerPort: 25575
+        env:
+        - name: EULA
+          value: "true"
+        volumeMounts:
+        - mountPath: "/data"
+          name: volume
+      volumes:
+      - name: volume
+        persistentVolumeClaim:
+          claimName: minecraftfile
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: minecraft-server
+spec:
+  type: LoadBalancer
+  ports:
+  - protocol: TCP
+    name: minecraft
+    port: 25565
+    targetPort: 25565
+  - protocol: TCP
+    name: rcon
+    port: 25575
+    targetPort: 25575
+  selector:
+    app: minecraft-server
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: minecraftfile
+spec:
+  accessModes:
+    - ReadWriteMany
+  storageClassName: azurefile
+  resources:
+    requests:
+      storage: 500Mi
