@@ -1,23 +1,28 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: minecraft-server
+  name: deployment-minecraft-server
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: minecraft-server
+      app: deployment-minecraft-server
   template:
     metadata:
       labels:
-        app: minecraft-server
+        app: deployment-minecraft-server
     spec:
       containers:
-      - name: minecraft-server
+      - name: deployment-minecraft-server
         image: openhack/minecraft-server:2.0
         ports:
         - containerPort: 25565
         - containerPort: 25575
+        resources:
+          requests:
+           cpu: 250m
+          limits:
+           cpu: 500m
         env:
         - name: EULA
           value: "true"
@@ -27,12 +32,12 @@ spec:
       volumes:
       - name: volume
         persistentVolumeClaim:
-          claimName: minecraftfile
+          claimName: azurefile
 ---
 apiVersion: v1
 kind: Service
 metadata:
-  name: minecraft-server
+  name: deployment-minecraft-server-service
 spec:
   type: LoadBalancer
   ports:
@@ -45,16 +50,16 @@ spec:
     port: 25575
     targetPort: 25575
   selector:
-    app: minecraft-server
+    app: deployment-minecraft-server
 ---
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
-  name: minecraftfile
+  name: azurefile
 spec:
   accessModes:
     - ReadWriteMany
   storageClassName: azurefile
   resources:
     requests:
-      storage: 500Mi
+      storage: 1Gi
