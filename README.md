@@ -9,3 +9,7 @@ azure-pvc-roles.yaml
 
 ## - This file was used to apply the rbac for the initial cluster creation
 rbac.yaml
+
+
+##- creating storage
+az storage account create --resource-group MC_RGCI_minecraftmaster_australiaeast --name minecraftstorageaccount --sku Standard_LRS
